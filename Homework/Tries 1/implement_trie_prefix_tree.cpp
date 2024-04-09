@@ -13,24 +13,25 @@ class TrieNode{
         isEnd=false;
     }
 };
-class Trie {
-private:
+
+class Trie{
+    private:
     void insertTries(TrieNode*root,string word,int i){
-        if(i==word.size()){
+        if(i>=word.size()){
             root->isEnd=true;
             return;
         }
 
         int idx=(word[i]-'a');
 
-        if(root->children[idx]==nullptr){
+        if(root->children[idx]==NULL){
             root->children[idx]=new TrieNode(word[i]);
         }
         root=root->children[idx];
         insertTries(root,word,i+1);
     }
     bool SearchTrie(TrieNode*root,string word,int i){
-        if(i==word.size()){
+        if(i>=word.size()){
             return root->isEnd;
         }
         int idx=word[i]-'a';
@@ -43,35 +44,29 @@ private:
         }
         return SearchTrie(root,word,i+1);
     }
-    bool startWithTrie(TrieNode*root,string word,int i){
-        if(i==word.size()){
-            return true;
-        }
-        int idx=word[i]-'a';
-        
-        if(root->children[idx]!=NULL){
-            root=root->children[idx];
-        }
-        else{
-            return false;
-        }
-        return startWithTrie(root,word,i+1);
-    }
-public:
+
+    public:
     TrieNode*root=new TrieNode('\0');
-    Trie() {
-        TrieNode*root=new TrieNode('\0');
-    }
-    
-    void insert(string word) {
+
+    void insertIntoTrie(string word){
         insertTries(root,word,0);
     }
-    
-    bool search(string word) {
+    bool searchInTrie(string word){
         return SearchTrie(root,word,0);
     }
-    
-    bool startsWith(string prefix) {
-        return startWithTrie(root,prefix,0);
-    }
+
 };
+
+int main(){
+    Trie*t=new Trie();
+
+    string word="abcd";
+    t->insertIntoTrie(word);
+
+    if(t->searchInTrie("abcd")){
+        cout<<"word found";
+    }
+    else{
+        cout<<"word not found";
+    }
+}
