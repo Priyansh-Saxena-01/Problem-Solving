@@ -3,94 +3,71 @@ using namespace std;
 
 class TrieNode{
     public:
-    char data;
-    int slen;
-    int sidx;
+    bool isEnd;
+    int count;
     TrieNode*children[26];
 
-    TrieNode(char ch){
-        data=ch;
+    TrieNode(){
         for(int i=0;i<26;i++) children[i]=NULL;
+        isEnd=false;
+        count=0;
     }
 };
 
 class Trie{
     private:
-    void insertTries(TrieNode*root,string word,int index){
-
+    //unordered_map<string,int>helper;
+    void insertTries(TrieNode*root,string word){
         int n=word.size();
-        for(int k=n-1;k>=0;--k){
+        for(int i=0;i<n;i++){
+            int idx=(word[i]-'a');
 
-            int idx=(word[k]-'a');
-
-            if(root->children[idx]!=NULL){
-
-                if(root->children[idx]->slen==n){
-                    root->children[idx]->sidx=min(root->children[idx]->sidx,index);
-                }
-                else if(root->children[idx]->slen>n){
-                    root->children[idx]->slen=n;
-                    root->children[idx]->sidx=index;
-                }
-            }
-            else{
-                TrieNode*child=new TrieNode(word[k]);
-                root->children[idx]=child;
-                child->slen=n;
-                child->sidx=index;
-            }
-            root=root->children[idx];
-        }
-    }
-
-    int querySolver(TrieNode*root,string query){
-        for(int k=query.size()-1;k>=0;k--){
-    
-            int idx=(query[k]-'a');
-            
             if(root->children[idx]==NULL){
-                return root->sidx;
+                root->children[idx]=new TrieNode();
             }
+            root->children[idx]->count+=1;
             root=root->children[idx];
         }
-        return root->sidx;
+        root->isEnd=true;
+    }
+    int querySolver(TrieNode*root,string word){
+        int n=word.size();
+        int maxCount=0;
+        for(int i=0;i<n;i++){
+            int idx=word[i]-'a';
+            maxCount+=root->children[idx]->count;
+            root=root->children[idx];
+        }
+        return maxCount;
     }
 
     public:
-    TrieNode*root=new TrieNode('\0');
+    TrieNode*root=new TrieNode();
 
-    void insertIntoTrie(vector<string>words){
-        int minlen=INT_MAX,minidx=-1;
-        for(int i=0;i<words.size();i++){
-            if(minlen>words[i].size()){
-                minlen=words[i].size();
-                minidx=i;
-            }
-            else if(minlen==words[i].size()){
-                minidx=min(minidx,i);
-            }
-            insertTries(root,words[i],i);
+    void insertIntoTrie(vector<string>nums){
+        for(int i=0;i<nums.size();i++){
+            insertTries(root,nums[i]);
         }
-        root->sidx=minidx;
     }
-    int queryIntoTrie(string query){
-        TrieNode*temphead=root;
-        return querySolver(temphead,query);
+    vector<int> query(vector<string>words){
+        int n=words.size();
+        vector<int>ans;
+        for(int i=0;i<n;i++){
+            ans.push_back(querySolver(root,words[i]));
+        }
+        return ans;
     }
 
 };
 
 int main(){
     Trie*t=new Trie();
-
-    vector<string>words={"abcd","bcd","xbcd"};
-    vector<string>queries={"cd","bcd","xyz"};
-    t->insertIntoTrie(words);
+    vector<string>nums={"abc","ab","bc","b"};
+    t->insertIntoTrie(nums);
     vector<int>ans;
-    for(int i=0;i<queries.size();i++){
-        ans.push_back(t->queryIntoTrie(queries[i]));
+    ans=t->query(nums);
+    for(auto i:ans){
+        cout<<i<<" ";
     }
-    for(int i=0;i<ans.size();i++) cout<<ans[i]<<" ";
-
 
 }
